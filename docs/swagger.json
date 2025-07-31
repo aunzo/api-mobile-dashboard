@@ -1,0 +1,143 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "description": "This is the API for Mobile Build Dashboard",
+        "title": "API Mobile Dashboard",
+        "contact": {},
+        "version": "1.0"
+    },
+    "host": "localhost:3000",
+    "basePath": "/",
+    "paths": {
+        "/build-info": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Get list of build info",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.BuildInfo"
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Create new build info",
+                "parameters": [
+                    {
+                        "description": "Build Info",
+                        "name": "buildInfo",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.BuildInfo"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/build-info/csv": {
+            "get": {
+                "produces": [
+                    "text/csv"
+                ],
+                "summary": "Download build info as CSV",
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "models.BuildInfo": {
+            "type": "object",
+            "properties": {
+                "compile_file_count": {
+                    "type": "string"
+                },
+                "cpu": {
+                    "type": "string"
+                },
+                "disk_available": {
+                    "type": "string"
+                },
+                "disk_total": {
+                    "type": "string"
+                },
+                "duration": {
+                    "type": "string"
+                },
+                "end_time": {
+                    "type": "string"
+                },
+                "file_change_count": {
+                    "type": "string"
+                },
+                "git_author": {
+                    "type": "string"
+                },
+                "git_branch": {
+                    "type": "string"
+                },
+                "machine_model": {
+                    "type": "string"
+                },
+                "memory_gb": {
+                    "type": "string"
+                },
+                "platform": {
+                    "type": "string"
+                },
+                "scheme": {
+                    "type": "string"
+                },
+                "start_time": {
+                    "type": "string"
+                }
+            }
+        }
+    }
+}

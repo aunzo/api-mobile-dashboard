@@ -1,0 +1,93 @@
+basePath: /
+definitions:
+  models.BuildInfo:
+    properties:
+      compile_file_count:
+        type: string
+      cpu:
+        type: string
+      disk_available:
+        type: string
+      disk_total:
+        type: string
+      duration:
+        type: string
+      end_time:
+        type: string
+      file_change_count:
+        type: string
+      git_author:
+        type: string
+      git_branch:
+        type: string
+      machine_model:
+        type: string
+      memory_gb:
+        type: string
+      platform:
+        type: string
+      scheme:
+        type: string
+      start_time:
+        type: string
+    type: object
+host: localhost:3000
+info:
+  contact: {}
+  description: This is the API for Mobile Build Dashboard
+  title: API Mobile Dashboard
+  version: "1.0"
+paths:
+  /build-info:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.BuildInfo'
+            type: array
+      summary: Get list of build info
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Build Info
+        in: body
+        name: buildInfo
+        required: true
+        schema:
+          $ref: '#/definitions/models.BuildInfo'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Create new build info
+  /build-info/csv:
+    get:
+      produces:
+      - text/csv
+      responses:
+        "200":
+          description: OK
+      summary: Download build info as CSV
+swagger: "2.0"

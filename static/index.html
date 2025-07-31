@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8" />
+    <title>Build Info Dashboard</title>
+    <!-- Bootstrap CSS CDN -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+
+    <style>
+        /* Prevent table cells from wrapping text */
+        #buildTable td,
+        #buildTable th {
+            white-space: nowrap;
+        }
+
+        /* Optional: Make the table horizontally scrollable if too wide */
+        .table-responsive {
+            overflow-x: auto;
+        }
+    </style>
+</head>
+
+<body class="bg-light">
+    <div class="container-fluid vh-100 d-flex flex-column py-4">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1 class="text-primary m-0">📦 Build Info Dashboard</h1>
+            <div class="d-flex align-items-center">
+                <label for="platformSearch" class="me-2 fw-semibold mb-0">Filter by Platform:</label>
+                <select id="platformSearch" class="form-select" style="width: 150px;">
+                    <option value="">All Platforms</option>
+                    <option value="ios">iOS</option>
+                    <option value="android">Android</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="table-responsive">
+            <table id="buildTable" class="table table-striped table-bordered align-middle">
+                <thead class="table-dark">
+                    <tr>
+                        <th>Start</th>
+                        <th>End</th>
+                        <th>Duration</th>
+                        <th>Branch</th>
+                        <th>Author</th>
+                        <th>Scheme</th>
+                        <th>Model</th>
+                        <th>CPU</th>
+                        <th>Mem</th>
+                        <th>Disk</th>
+                        <th>Free</th>
+                        <th>Changes</th>
+                        <th>Compiled</th>
+                        <th>Platform</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS Bundle (Popper + Bootstrap) -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        let buildData = [];
+
+        // Fetch data and render table
+        function renderTable(data) {
+            const tbody = document.querySelector('#buildTable tbody');
+            tbody.innerHTML = ''; // Clear existing rows
+
+            data.forEach(info => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+          <td>${info.start_time}</td>
+          <td>${info.end_time}</td>
+          <td>${info.duration}</td>
+          <td>${info.git_branch}</td>
+          <td>${info.git_author}</td>
+          <td>${info.scheme}</td>
+          <td>${info.machine_model}</td>
+          <td>${info.cpu}</td>
+          <td>${info.memory_gb}</td>
+          <td>${info.disk_total}</td>
+          <td>${info.disk_available}</td>
+          <td>${info.file_change_count}</td>
+          <td>${info.compile_file_count}</td>
+          <td>${info.platform}</td>
+        `;
+                tbody.appendChild(row);
+            });
+        }
+
+        // Initial fetch
+        fetch('/build-info')
+            .then(res => res.json())
+            .then(data => {
+                buildData = data;
+                renderTable(buildData);
+            });
+
+        // Filter function for platform search
+        document.getElementById('platformSearch').addEventListener('change', (e) => {
+            const selectedPlatform = e.target.value.toLowerCase();
+
+            if (!selectedPlatform) {
+                // If no filter selected, show all
+                renderTable(buildData);
+                return;
+            }
+
+            const filteredData = buildData.filter(info => {
+                const platform = info.platform.toLowerCase();
+                return platform === selectedPlatform;
+            });
+
+            renderTable(filteredData);
+        });
+    </script>
+</body>
+
+</html>
