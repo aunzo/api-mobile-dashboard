@@ -76,6 +76,41 @@ To deploy the backend to Cloud Run, follow these steps:
 
 ## Local Development
 
+### Prerequisites
+
+- **Go 1.21+** (for native development)
+- **Docker Desktop** (for containerized development) - [Install Docker](https://www.docker.com/products/docker-desktop)
+
+### Option 1: Docker Compose (Recommended)
+
+**First, check if Docker is installed:**
+```bash
+make check-docker
+```
+
+1. **Development with hot reload:**
+   ```bash
+   make dev
+   # or
+   docker compose -f docker-compose.yml -f docker-compose.dev.yml up --build
+   ```
+
+2. **Production mode:**
+   ```bash
+   make up
+   # or
+   docker compose up --build
+   ```
+
+3. **Stop services:**
+   ```bash
+   make down
+   # or
+   docker compose down
+   ```
+
+### Option 2: Native Go
+
 1. Install dependencies:
    ```bash
    go mod download
@@ -84,9 +119,47 @@ To deploy the backend to Cloud Run, follow these steps:
 2. Run the application:
    ```bash
    go run cmd/api/main.go
+   # or
+   make run
    ```
 
 3. The server will start at http://localhost:3000
+
+### Available Make Commands
+
+```bash
+make help         # Show all available commands
+make check-docker # Check if Docker is installed
+make build        # Build Docker images
+make dev          # Start development environment
+make up           # Start production environment
+make down         # Stop all services
+make logs         # Show logs from all services
+make clean        # Clean up Docker resources
+make test         # Run tests
+make shell        # Open shell in API container
+make run          # Run locally without Docker
+make install      # Install Go dependencies
+```
+
+### Troubleshooting
+
+**Docker not found:**
+- Install Docker Desktop from [docker.com](https://www.docker.com/products/docker-desktop)
+- Make sure Docker Desktop is running
+- Run `make check-docker` to verify installation
+
+**Port already in use:**
+```bash
+# Find process using port 3000
+lsof -ti:3000
+# Kill the process
+kill $(lsof -ti:3000)
+```
+
+**Hot reload not working:**
+- Make sure you're using `make dev` for development
+- Check that files are being mounted correctly in the container
 
 ## API Documentation
 Swagger documentation is available at `/swagger/index.html` when the application is running.

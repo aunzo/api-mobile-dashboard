@@ -1,13 +1,52 @@
+# Dependencies
 node_modules
 npm-debug.log
-Dockerfile
+
+# Docker files
+Dockerfile*
 .dockerignore
+docker-compose*.yml
+
+# Git
 .git
 .github
 .gitignore
+
+# Documentation
 README.md
 LICENSE
+*.md
+
+# Firebase
 .firebase
 .firebaserc
 firebase.json
 public
+
+# Development files
+.env*
+.air.toml
+tmp/
+build-errors.log
+
+# IDE
+.vscode
+.idea
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Build artifacts
+api-mobile-dashboard
+*.exe
+*.dll
+*.so
+*.dylib
+
+# Test files
+*_test.go
+testdata/
+coverage.out

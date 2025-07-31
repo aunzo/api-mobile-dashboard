@@ -1,0 +1,23 @@
+FROM golang:1.21-alpine
+
+# Install air for hot reloading and curl for health checks
+RUN go install github.com/cosmtrek/air@latest && \
+    apk add --no-cache curl
+
+WORKDIR /app
+
+# Copy go mod files
+COPY go.mod go.sum ./
+RUN go mod download
+
+# Copy source code
+COPY . .
+
+# Create tmp directory for air
+RUN mkdir -p tmp
+
+# Expose port
+EXPOSE 3000
+
+# Use air for hot reloading with default settings
+CMD ["air"]

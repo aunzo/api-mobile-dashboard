@@ -1,0 +1,23 @@
+version: '3.8'
+
+services:
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    environment:
+      - MyPort=3000
+      - GIN_MODE=debug
+    volumes:
+      - .:/app
+      - /app/vendor
+    ports:
+      - "3000:3000"
+    command: |
+      sh -c '
+        go mod download &&
+        go install github.com/cosmtrek/air@latest &&
+        air
+      '
+    stdin_open: true
+    tty: true
