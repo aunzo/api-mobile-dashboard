@@ -5,20 +5,18 @@ import (
 	"log"
 	"strings"
 
-	"github.com/aunz/api-mobile-dashboard-golang/internal/firestore"
+	"github.com/aunz/api-mobile-dashboard-golang/internal/database"
 	"github.com/aunz/api-mobile-dashboard-golang/internal/models"
 	"github.com/gin-gonic/gin"
-	"github.com/mitchellh/mapstructure"
-	"google.golang.org/api/iterator"
 )
 
 type BuildInfoHandler struct {
-	client *firestore.ClientWrapper
+	db *database.PostgresDB
 }
 
-func NewBuildInfoHandler(client *firestore.ClientWrapper) *BuildInfoHandler {
+func NewBuildInfoHandler(db *database.PostgresDB) *BuildInfoHandler {
 	return &BuildInfoHandler{
-		client: client,
+		db: db,
 	}
 }
 
@@ -27,23 +25,11 @@ func NewBuildInfoHandler(client *firestore.ClientWrapper) *BuildInfoHandler {
 // @Success 200 {array} models.BuildInfo
 // @Router /build-info [get]
 func (h *BuildInfoHandler) BuildInfoList(c *gin.Context) {
-	var buildInfos []models.BuildInfo
-
-	iter := h.client.Client.Collection("build-infos").Documents(h.client.Ctx)
-
-	for {
-		doc, err := iter.Next()
-		if err == iterator.Done {
-			break
-		}
-		if err != nil {
-			log.Printf("Failed to iterate: %v", err)
-			c.JSON(500, gin.H{"error": "database error"})
-			return
-		}
-		var buildInfo models.BuildInfo
-		mapstructure.Decode(doc.Data(), &buildInfo)
-		buildInfos = append(buildInfos, buildInfo)
+	buildInfos, err := h.db.GetAllBuildInfos()
+	if err != nil {
+		log.Printf("Failed to get build infos: %v", err)
+		c.JSON(500, gin.H{"error": "database error"})
+		return
 	}
 
 	c.JSON(200, buildInfos)
@@ -54,7 +40,11 @@ func (h *BuildInfoHandler) BuildInfoList(c *gin.Context) {
 // @Success 200
 // @Router /build-info/csv [get]
 func (h *BuildInfoHandler) BuildInfoListCSV(c *gin.Context) {
-	iter := h.client.Client.Collection("build-infos").Documents(h.client.Ctx)
+	buildInfos, err := h.db.GetAllBuildInfos()
+	if err != nil {
+		c.String(500, "Error reading from database")
+		return
+	}
 
 	c.Header("Content-Type", "text/csv")
 	c.Header("Content-Disposition", "attachment;filename=build_info.csv")
@@ -68,18 +58,7 @@ func (h *BuildInfoHandler) BuildInfoListCSV(c *gin.Context) {
 	}
 	csvWriter.Write(headers)
 
-	for {
-		doc, err := iter.Next()
-		if err == iterator.Done {
-			break
-		}
-		if err != nil {
-			c.String(500, "Error reading from database")
-			return
-		}
-		var buildInfo models.BuildInfo
-		mapstructure.Decode(doc.Data(), &buildInfo)
-
+	for _, buildInfo := range buildInfos {
 		row := []string{
 			strings.TrimSpace(buildInfo.StartTime),
 			strings.TrimSpace(buildInfo.EndTime),
@@ -114,7 +93,7 @@ func (h *BuildInfoHandler) CreateBuildInfo(c *gin.Context) {
 		return
 	}
 
-	_, _, err := h.client.Client.Collection("build-infos").Add(h.client.Ctx, buildInfo)
+	err := h.db.CreateBuildInfo(buildInfo)
 	if err != nil {
 		log.Printf("An error has occurred: %s", err)
 		c.JSON(500, gin.H{"error": "Failed to store build info"})

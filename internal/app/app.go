@@ -1,25 +1,20 @@
 package app
 
 import (
-	"context"
 	"fmt"
 	"log"
 	"os"
 
-	"github.com/aunz/api-mobile-dashboard-golang/internal/firestore"
+	"github.com/aunz/api-mobile-dashboard-golang/internal/database"
 	"github.com/aunz/api-mobile-dashboard-golang/internal/handlers"
 	"github.com/aunz/api-mobile-dashboard-golang/internal/routes"
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
-
-	firebase "firebase.google.com/go"
-	"google.golang.org/api/option"
 )
 
 type App struct {
 	Engine *gin.Engine
-	Client *firestore.ClientWrapper
-	ctx    context.Context
+	DB     *database.PostgresDB
 }
 
 func NewApp() *App {
@@ -29,25 +24,28 @@ func NewApp() *App {
 func (a *App) Init() {
 	godotenv.Load()
 
-	a.ctx = context.Background()
-
-	sa := option.WithCredentialsFile("serviceAccountKey.json")
-	fbApp, err := firebase.NewApp(a.ctx, nil, sa)
+	// Initialize PostgreSQL database
+	db, err := database.NewPostgresDB()
 	if err != nil {
-		log.Fatalln("Firebase init error:", err)
+		log.Printf("PostgreSQL initialization failed: %v", err)
+		log.Println("\nTroubleshooting steps:")
+		log.Println("1. Ensure PostgreSQL is running")
+		log.Println("2. Check database connection parameters in environment variables:")
+		log.Println("   - DB_HOST (default: localhost)")
+		log.Println("   - DB_PORT (default: 5432)")
+		log.Println("   - DB_USER (default: postgres)")
+		log.Println("   - DB_PASSWORD (default: password)")
+		log.Println("   - DB_NAME (default: mobile_dashboard)")
+		log.Println("   - DB_SSLMODE (default: disable)")
+		log.Println("3. Verify database exists and user has proper permissions")
+		log.Fatalln("Database initialization failed:", err)
 	}
 
-	client, err := fbApp.Firestore(a.ctx)
-	if err != nil {
-		log.Fatalln("Firestore client error:", err)
-	}
-
-	a.Client = firestore.NewClientWrapper(client, a.ctx)
-
+	a.DB = db
 	a.Engine = gin.Default()
 
 	// Register handlers with dependencies
-	h := handlers.NewBuildInfoHandler(a.Client)
+	h := handlers.NewBuildInfoHandler(a.DB)
 	routes.InitializeRoutes(a.Engine, h)
 
 	fmt.Println("Server will start at port " + a.GetPort())

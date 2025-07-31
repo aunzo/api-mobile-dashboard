@@ -1,4 +1,4 @@
-FROM golang:1.21-alpine AS builder
+FROM golang:1.24-alpine AS builder
 
 WORKDIR /app
 
@@ -14,7 +14,6 @@ FROM alpine:latest
 WORKDIR /app
 
 COPY --from=builder /app/api-mobile-dashboard .
-COPY --from=builder /app/serviceAccountKey.json .
 COPY --from=builder /app/static ./static
 
 EXPOSE 8888

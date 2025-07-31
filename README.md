@@ -1,7 +1,7 @@
 # API Mobile Dashboard
 
 ## Overview
-This is a Go application that provides an API for a mobile dashboard. It uses Firebase Firestore for data storage and Gin as the web framework.
+This is a Go application that provides an API for a mobile dashboard. It uses PostgreSQL for data storage and Gin as the web framework.
 
 ## Deployment
 
@@ -143,6 +143,30 @@ make install      # Install Go dependencies
 ```
 
 ### Troubleshooting
+
+**Database Error:**
+If you get "database error" when accessing `/build-info`:
+
+1. **Check PostgreSQL Connection**:
+   - Ensure PostgreSQL is running (locally or via Docker)
+   - Verify database connection parameters in environment variables:
+     - `DB_HOST` (default: localhost)
+     - `DB_PORT` (default: 5432)
+     - `DB_USER` (default: postgres)
+     - `DB_PASSWORD` (default: password)
+     - `DB_NAME` (default: mobile_dashboard)
+     - `DB_SSLMODE` (default: disable)
+
+2. **Database Setup**:
+   - Create the database if it doesn't exist:
+   ```sql
+   CREATE DATABASE mobile_dashboard;
+   ```
+   - The application will automatically create the required tables on startup
+
+3. **Environment Configuration**:
+   - Copy `.env.example` to `.env` and update with your database credentials
+   - For Docker Compose, the PostgreSQL service is automatically configured
 
 **Docker not found:**
 - Install Docker Desktop from [docker.com](https://www.docker.com/products/docker-desktop)
